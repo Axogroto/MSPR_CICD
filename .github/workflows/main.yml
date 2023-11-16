@@ -1,4 +1,5 @@
-name: Industrialisation continue sur le serveur AWS (Tomcat)
+  
+    name: Industrialisation continue sur le serveur AWS (Tomcat)
 on: push
 jobs:
   build:
@@ -38,5 +39,11 @@ jobs:
         run: |
           ls -la 
           ipfs swarm peers
-          ipfs add axeldepoitre.war
+          ipfs add axeldepoitre.war > ipfs_key.txt
         shell: alpine.sh --root {0}
+      - name: Notification Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          ipfs_key=$(cat ipfs_key.txt | awk '{print $2}')
+          curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"Axel Depoitre: Le workflow marche bienClé IPFS : $ipfs_key\"}" $DISCORD_WEBHOOK
